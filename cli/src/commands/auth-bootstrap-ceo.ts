@@ -28,6 +28,8 @@ function resolveDbUrl(configPath?: string) {
 
 function resolveBaseUrl(configPath?: string, explicitBaseUrl?: string) {
   if (explicitBaseUrl) return explicitBaseUrl.replace(/\/+$/, "");
+  const envBaseUrl = process.env.PAPERCLIP_AUTH_PUBLIC_BASE_URL ?? process.env.BETTER_AUTH_URL;
+  if (envBaseUrl?.trim()) return envBaseUrl.trim().replace(/\/+$/, "");
   const config = readConfig(configPath);
   if (config?.auth.baseUrlMode === "explicit" && config.auth.publicBaseUrl) {
     return config.auth.publicBaseUrl.replace(/\/+$/, "");
@@ -36,6 +38,15 @@ function resolveBaseUrl(configPath?: string, explicitBaseUrl?: string) {
   const port = config?.server.port ?? 3100;
   const publicHost = host === "0.0.0.0" ? "localhost" : host;
   return `http://${publicHost}:${port}`;
+}
+
+function resolveDeploymentMode(configPath?: string): "authenticated" | "local_trusted" {
+  const deploymentModeFromEnv = process.env.PAPERCLIP_DEPLOYMENT_MODE?.trim();
+  if (deploymentModeFromEnv === "authenticated" || deploymentModeFromEnv === "local_trusted") {
+    return deploymentModeFromEnv;
+  }
+  const config = readConfig(configPath);
+  return config?.server.deploymentMode ?? "local_trusted";
 }
 
 export async function bootstrapCeoInvite(opts: {
@@ -51,7 +62,7 @@ export async function bootstrapCeoInvite(opts: {
     return;
   }
 
-  if (config.server.deploymentMode !== "authenticated") {
+  if (resolveDeploymentMode(configPath) !== "authenticated") {
     p.log.info("Deployment mode is local_trusted. Bootstrap CEO invite is only required for authenticated mode.");
     return;
   }

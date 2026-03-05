@@ -21,6 +21,7 @@ services:
       PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
       PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:-dev-insecure-change-me}"
+      PAPERCLIP_AUTH_PUBLIC_BASE_URL: "${PAPERCLIP_AUTH_PUBLIC_BASE_URL:-http://localhost:3100}"
     depends_on:
       - db
 

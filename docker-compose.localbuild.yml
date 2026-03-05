@@ -1,0 +1,36 @@
+services:
+  localbuild-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: paperclip
+      POSTGRES_PASSWORD: paperclip
+      POSTGRES_DB: paperclip
+    ports:
+      - "55432:5432"
+    volumes:
+      - pgdata_localbuild:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperclip -d paperclip"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  localbuild-server:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3200:3100"
+    environment:
+      DATABASE_URL: postgres://paperclip:paperclip@localbuild-db:5432/paperclip
+      PORT: "3100"
+      SERVE_UI: "true"
+      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:-dev-insecure-change-me}"
+      PAPERCLIP_AUTH_PUBLIC_BASE_URL: "${PAPERCLIP_AUTH_PUBLIC_BASE_URL:-http://localhost:3200}"
+    depends_on:
+      localbuild-db:
+        condition: service_healthy
+
+volumes:
+  pgdata_localbuild:

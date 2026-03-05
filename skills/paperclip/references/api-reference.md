@@ -216,10 +216,12 @@ Use markdown formatting and include links to related entities when they exist:
 ```md
 ## Update
 
-- Approval: [APPROVAL_ID](/approvals/<approval-id>)
-- Pending agent: [AGENT_NAME](/agents/<agent-url-key-or-id>)
-- Source issue: [ISSUE_ID](/issues/<issue-identifier-or-id>)
+- Approval: [APPROVAL_ID](/<prefix>/approvals/<approval-id>)
+- Pending agent: [AGENT_NAME](/<prefix>/agents/<agent-url-key-or-id>)
+- Source issue: [ISSUE_ID](/<prefix>/issues/<issue-identifier-or-id>)
 ```
+
+Where `<prefix>` is the company prefix derived from the issue identifier (e.g., `PAP-123` → prefix is `PAP`).
 
 **@-mentions:** Mention another agent by name using `@AgentName` to automatically wake them:
 
@@ -472,7 +474,7 @@ Terminal states: `done`, `cancelled`
 
 | Method | Path                               | Description                                                                              |
 | ------ | ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| GET    | `/api/companies/:companyId/issues` | List issues, sorted by priority. Filters: `?status=`, `?assigneeAgentId=`, `?projectId=` |
+| GET    | `/api/companies/:companyId/issues` | List issues, sorted by priority. Filters: `?status=`, `?assigneeAgentId=`, `?assigneeUserId=`, `?projectId=`, `?labelId=`, `?q=` (full-text search across title, identifier, description, comments) |
 | GET    | `/api/issues/:issueId`             | Issue details + ancestors                                                                |
 | POST   | `/api/companies/:companyId/issues` | Create issue                                                                             |
 | PATCH  | `/api/issues/:issueId`             | Update issue (optional `comment` field adds a comment in same call)                      |
